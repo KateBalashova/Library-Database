@@ -39,9 +39,7 @@
 
 
 ---
-
 ## 👥 Team Members & Roles
-## Team Members and Roles
 
 | Role                   | Responsibilities | Assignee |
 |------------------------|------------------|----------|
