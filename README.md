@@ -3,19 +3,88 @@
 
 ## 📄 Project Description
 
+This project aims to design a system that would allow for convenient and secure management of a system of libraries. Planned capabilities include managing patron information, book loans, staff permissions, and more.
+
 ---
 
 ## 🎯 Functional & Non-functional Requirements
 
 ### Functional Requirements
 
+1.  User Management
+-   Register and manage library patrons with essential contact details
+-   Track membership status and send expiry notifications
+-   Allow patrons to view their borrowing history and current loans
+    
+2.  Book Management
+-   Maintain catalog with key book metadata (title, author, ISBN, genre)
+-   Track book status (available, checked out, lost, damaged)
+-   Support basic search functionality by title, author, and genre
+
+3.  Circulation Management
+-   Process book checkouts and returns with staff authorization
+-   Calculate late fees based on configurable rules
+-   Enforce borrowing limits and loan durations per patron
+    
+4.  Branch Management
+-   Store information about multiple library locations across the city
+-   Associate books and staff with specific branches
+-   Support book transfers between branches when requested
+
+5.  Staff Management
+-   Maintain staff records with role-based permissions
+-   Track which staff member processes each transaction for accountability
+-   Enable managers to oversee branch operations and staff activities
 
 ###  Non-functional Requirements
 
+1.  Security
+-   Implement role-based access control for system functions
+-   Secure storage of personal information
+-   Maintain audit logs of critical transactions
+  
+2.  Performance
+-   Support concurrent operations from multiple branches
+-   Ensure common queries execute quickly
+-   Handle peak loads during busy periods
+
+3.  Usability
+-   Design database schema with clear naming conventions
+-   Implement appropriate constraints for data integrity
+-   Create an indexing strategy for frequently queried fields
+    
+4.  Scalability
+-   Structure database to accommodate growing collection and user base
+-   Design for easy addition of new library branches
+-   Support backup and recovery processes
 ---
 
 
 ## 🧱 Planned Core Entities
+
+1. Branch
+-   Attributes: BranchID (PK), Name, Address, Phone, Email
+-   Description: Library locations within the city system
+    
+2. Staff
+-   Attributes: StaffID (PK), BranchID (FK), ManagerID (FK), FirstName, LastName, Email, Role
+-   Description: Library employees with different roles and access levels
+
+3. Patron
+-   Attributes: PatronID (PK), FirstName, LastName, Email, Phone, RegistrationDate
+-   Description: Library members who borrow books
+
+4. Book
+-   Attributes: BookID (PK), BranchID (FK), Title, Author, ISBN, Genre, Status, ShelfLocation
+-   Description: Books in the library with location and availability information
+
+5. Loan
+-   Attributes: LoanID (PK), BookID (FK), PatronID (FK), StaffID (FK), CheckoutDate, DueDate, ReturnDate
+-   Description: Records of books borrowed by patrons
+    
+6. Fine
+-   Attributes: FineID (PK), LoanID (FK), Amount, IssueDate, PaymentStatus
+-   Description: Financial penalties for late returns or damaged books
 
 ---
 
@@ -50,4 +119,19 @@
 | Security Expert        | - Assign user roles and privileges<br>- Use encryption for sensitive data (e.g., passwords)<br>- Prevent SQL injection using prepared statements | Kate |
 | Tester                 | - Ensure full system functionality<br>- Conduct end-to-end testing<br>- Gather and document user feedback | Chi |
 
+---
+
 ## 📅 Timeline & Milestones
+All dates are for May 2025
+| Task | Start | Finish |
+|--|--|--|
+| Conceptual & Physical Design | 7 | 10 |
+| Frontend Development | 7 | 14 |
+| Implementation of DB Entities | 10 | 14 |
+| Security Configuration | 14 | 17 |
+| Web Integration | 14 | 17 |
+| Performance Tuning | 17 | 22 |
+| End-to-End Testing | 22 | 27 |
+| Final Documentation | 22 | 27 |
+
+---
