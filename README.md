@@ -22,8 +22,6 @@
 
 ## 🔧 Technology Stack
 
-## Technology Stack
-
 | Layer                | Technology                   | Description |
 |----------------------|------------------------------|-------------|
 | Database System      | MySQL 8.0                    | Relational database for storing all structured data with support for constraints, triggers, stored procedures, indexing, and normalization. |
