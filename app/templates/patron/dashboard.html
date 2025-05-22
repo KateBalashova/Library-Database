@@ -1,0 +1,61 @@
+{% extends 'layout.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ current_user.email }}!</h2>
+
+<!-- Summary Cards -->
+<div class="row my-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">📚 Current Loans</h5>
+                <p class="card-text display-6">{{ current_loans }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">⚠️ Overdue Books</h5>
+                <p class="card-text display-6">{{ overdue_loans }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">💰 Unpaid Fines</h5>
+                <p class="card-text display-6">{{ unpaid_fines }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Section -->
+<div class="card">
+    <div class="card-header">
+        📊 Loan Summary
+    </div>
+    <div class="card-body">
+        <canvas id="loanPieChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const ctx = document.getElementById('loanPieChart');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Returned Books', 'Currently Borrowed'],
+            datasets: [{
+                data: [{{ returned_loans }}, {{ total_loans - returned_loans }}],
+                backgroundColor: ['#198754', '#0d6efd']
+            }]
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Library Dashboard{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-dark text-white sidebar">
+            <h4 class="text-center py-3">Library</h4>
+            <ul class="nav flex-column px-3">
+                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('patron.patron_dashboard') }}">🏠 Dashboard</a></li>
+                {# <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('current_loans') }}">📚 Borrowed Books</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('catalog_search') }}">📖 Library Catalog</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('change_password') }}">🔒 Change Password</a></li>
+                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                #}
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content p-4 w-100">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

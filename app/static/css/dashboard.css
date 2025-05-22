@@ -1,0 +1,9 @@
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+}
+
+.main-content {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
