@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Library Dashboard{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap & Custom Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<body>
+<div class="d-flex">
+  <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar bg-black text-white d-flex flex-column p-3" style="width: 222px; min-height: 100vh;">
+        <!-- Logo -->
+        <div class="logo mb-4">
+            <h2 class="text-center sidebar-text">My Library</h2>
+        </div>
+
+
+        <!-- Navigation Links -->
+         <!-- Dashboard -->
+        <div class="flex-grow-1">
+            <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.patron_dashboard' %}active{% endif %}"
+                href="{{ url_for('patron.patron_dashboard') }}">
+                <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" alt="Dashboard Icon" class="sidebar-icon me-2">
+                <span class="sidebar-text">Dashboard</span>
+            </a>
+
+            <!-- TOCHANGE: endpoint-->
+            <!-- Mybooks-->
+            <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
+                href="{{ url_for('auth.unified_login') }}">
+                <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="Mybook Icon" class="sidebar-icon me-2">
+                <span class="sidebar-text">My Books</span>
+            </a>
+
+            <!-- TOCHANGE: endpoint-->
+            <!-- Library-->
+            <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
+                href="{{ url_for('auth.unified_login') }}">
+                <img src="{{ url_for('static', filename='icons/catalog.svg') }}" alt="Catalog Icon" class="sidebar-icon me-2">
+                <span class="sidebar-text">Library</span>
+            </a>
+        </div>
+
+        <a class="nav-link sidebar-btn d-flex align-items-center mt-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
+            href="{{ url_for('auth.unified_login') }}">
+            <img src="{{ url_for('static', filename='icons/logout.svg') }}" alt="Logout Icon" class="sidebar-icon me-2">
+            <span class="sidebar-text">Log Out</span>
+        </a>
+        <!-- Toggle Button (bottom) -->
+        <!-- TO-ADD-LATER
+        <div>
+        <button id="toggleSidebar" class="sidebar-toggle">
+            <img src="{{ url_for('static', filename='icons/toggle.svg') }}" width="24" alt="Toggle">
+        </button>
+        </div>
+        -->
+    </nav>
+
+  <!-- Main Content -->
+    <main class="main-content p-4 pt-3 w-100">
+        <!-- Top Banner -->
+        <div class="dashboard-banner d-flex justify-content-between align-items-center px-4 py-3">
+            <div class="d-flex align-items-center">
+                <img src="{{ url_for('static', filename='icons/user.svg') }}" alt="Library Icon" width="34" height="34" class="me-3">
+                <div>
+                <div class="fw-semibold fs-6">{{ current_user.full_name }}</div>
+                <div class="fw-semibold text-muted" style="font-size: 0.85rem;">Patron</div>
+                </div>
+            </div>
+        
+            <!-- Right: Date, Time, and Settings icon -->
+            <div class="d-flex align-items-center text-end">
+                <div class="me-4">
+                <div class="fw-bold" style="font-size: 0.9rem;">{{ current_time }}</div>
+                <div class="text-muted" style="font-size: 0.8rem;">{{ current_date }}</div>
+                </div>
+                <img src="{{ url_for('static', filename='icons/setting.svg') }}" alt="Settings" width="34" height="34">
+            </div>
+        </div>
+        <hr class="my-0">
+
+
+        <!-- Summary Cards -->
+         <!-- <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+            <h5 class="fw-bold">Borrowed Books</h5>
+            <p class="display-6">{{ borrowed_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+            <h5 class="fw-bold">Returned Books</h5>
+            <p class="display-6">{{ returned_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+            <h5 class="fw-bold">Overdue Books</h5>
+            <p class="display-6 text-danger">{{ overdue_count }}</p>
+            </div>
+        </div>
+        </div>
+        -->
+        <!-- Visualization or Quote -->
+        <!--<div class="card p-4">
+        {% if chart_data %}
+            <canvas id="borrowChart" height="100"></canvas>
+        {% else %}
+            <blockquote class="blockquote text-center mb-0">
+            <p>"Embarking on the journey of reading fosters personal growth, nurturing a path towards excellence and the refinement of character."</p>
+            </blockquote>
+        {% endif %}
+        </div> -->
+    </main>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

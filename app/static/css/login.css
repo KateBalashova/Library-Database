@@ -12,7 +12,7 @@ body {
 .login-container {
   background-color: white;
   padding: 40px;
-  border-radius: 10px;
+  border-radius: 13px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 360px;
 }
@@ -47,7 +47,7 @@ input, select, textarea {
   padding: 10px;
   font-size: 13px;
   border: 1px solid #ccc;
-  border-radius: 10px;
+  border-radius: 13px;
   box-sizing: border-box;  
 }
 
@@ -59,7 +59,7 @@ input, select, textarea {
   background-color: black;
   border: 2px solid white;
   color: white;
-  border-radius: 12px;
+  border-radius: 15px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;

@@ -44,10 +44,15 @@ def unified_register():
 # ------------------------------------------
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def unified_login():
+
+    
     if request.method == 'POST':
-        role = request.form['role']
+        role = request.form.get('role')
         email = request.form['email']
         password = request.form['password']
+        print("Form role_type:", role)
+        print("Submitted email:", email)
+        print("Result:", password)
 
         # Determine query by role
         if role == 'patron':
@@ -66,7 +71,12 @@ def unified_login():
                 if not user.is_active:
                     flash("Your patron account is inactive. Please contact the library.", "warning")
                     return redirect(url_for('auth.unified_login'))
-                login_user(PatronUser(user.patron_id, user.email))
+                login_user(PatronUser(
+                    id=user.patron_id,
+                    email=user.email,
+                    first_name=user.first_name,
+                    last_name=user.last_name
+                ))
                 return redirect(url_for('patron.patron_dashboard'))
 
             else:
@@ -82,6 +92,7 @@ def unified_login():
                     return redirect(url_for('staff.staff_dashboard'))
 
         flash("Invalid email or password.", "danger")
+
 
     return render_template('auth/login.html')
 

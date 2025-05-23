@@ -1,61 +1,128 @@
 {% extends 'layout.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Patron Dashboard{% endblock %}
+
+{% block sidebar_links %}
+<!-- Dashboard -->
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.patron_dashboard' %}active{% endif %}"
+    href="{{ url_for('patron.patron_dashboard') }}">
+    <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" alt="Dashboard Icon" class="sidebar-icon me-2">
+    <span class="sidebar-text">Dashboard</span>
+</a>
+
+<!-- TOCHANGE: endpoint-->
+<!-- My Books -->
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
+    href="{{ url_for('auth.unified_login') }}">
+    <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="Mybook Icon" class="sidebar-icon me-2">
+    <span class="sidebar-text">My Books</span>
+</a>
+
+<!-- TOCHANGE: endpoint-->
+<!-- Library -->
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
+    href="{{ url_for('auth.unified_login') }}">
+    <img src="{{ url_for('static', filename='icons/catalog.svg') }}" alt="Catalog Icon" class="sidebar-icon me-2">
+    <span class="sidebar-text">Library</span>
+</a>
+{% endblock %}
 
 {% block content %}
-<h2>Welcome, {{ current_user.email }}!</h2>
+<!-- Summary Cards: Figma style -->
+<div class="d-flex flex-wrap justify-content-center gap-4 mb-5">
+  <!-- Borrowed Books -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+        <img src="{{ url_for('static', filename='icons/borrowed.svg') }}" alt="Borrowed Icon" width="40" height="40">
+        </div>
+        <div class="divider"></div>
+        <div class="ps-4">
+        <div class="data-value">{{ borrowed_count }}</div>
+        <div class="data-label">Borrowed Books</div>
+        </div>
+    </div>
 
-<!-- Summary Cards -->
-<div class="row my-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-body">
-                <h5 class="card-title">📚 Current Loans</h5>
-                <p class="card-text display-6">{{ current_loans }}</p>
-            </div>
+  <!-- Returned Books -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+            <img src="{{ url_for('static', filename='icons/returned.svg') }}" alt="Returned Icon" width="40" height="40">
+        </div>
+            <div class="divider"></div>
+        <div class="ps-4">
+            <div class="data-value">{{ returned_count }}</div>
+            <div class="data-label">Returned Books</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-warning mb-3">
-            <div class="card-body">
-                <h5 class="card-title">⚠️ Overdue Books</h5>
-                <p class="card-text display-6">{{ overdue_loans }}</p>
-            </div>
+
+  <!-- Overdue Books -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+            <img src="{{ url_for('static', filename='icons/overdue.svg') }}" alt="Overdue Icon" width="40" height="40">
+        </div>
+        <div class="divider"></div>
+        <div class="ps-4">
+            <div class="data-value text-warning">{{ overdue_count }}</div>
+            <div class="data-label">Overdue Books</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-danger mb-3">
-            <div class="card-body">
-                <h5 class="card-title">💰 Unpaid Fines</h5>
-                <p class="card-text display-6">{{ unpaid_fines }}</p>
-            </div>
+
+  <!-- Outstanding Fines -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+            <img src="{{ url_for('static', filename='icons/fine.svg') }}" alt="Fine Icon" width="40" height="40">
+        </div>
+        <div class="divider"></div>
+        <div class="ps-4">
+            <div class="data-value text-warning">${{ '%.2f' | format(fine_amount) }}</div>
+            <div class="data-label">Outstanding Fines</div>
         </div>
     </div>
+
 </div>
-
 <!-- Chart Section -->
-<div class="card">
-    <div class="card-header">
-        📊 Loan Summary
+<div class="quote-card px-5 py-4 mx-auto my-3">
+  {% if chart_data %}
+    <div class="chart-section">
+        <div class="chart-row">
+            <div class="chart-col">
+                <canvas id="returnRatioChart"></canvas>
+            </div>
+            <div class="chart-col">
+                <canvas id="genreChart"></canvas>
+            </div>
+        </div>
+
+        <div class="line-chart-container">
+            <canvas id="borrowChart" style="min-height: 300px; max-width: 100%;"></canvas>
+        </div>
     </div>
-    <div class="card-body">
-        <canvas id="loanPieChart"></canvas>
+
+  {% else %}
+    <div class="quote-body">
+      <p class="quote-text">"A reader lives a thousand lives before he dies. The man who never reads lives only one."</p>
+      <p class="quote-author">~ George R.R. Martin</p>
     </div>
+  {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
+{% if chart_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
-    const ctx = document.getElementById('loanPieChart');
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Returned Books', 'Currently Borrowed'],
-            datasets: [{
-                data: [{{ returned_loans }}, {{ total_loans - returned_loans }}],
-                backgroundColor: ['#198754', '#0d6efd']
-            }]
-        }
+  window.addEventListener("DOMContentLoaded", () => {
+    console.log("📊 Rendering dashboard charts...");
+    loadDashboardCharts({
+      borrowLabels: {{ chart_data["labels"] | tojson }},
+      borrowValues: {{ chart_data["values"] | tojson }},
+      returnLabels: {{ return_ratio_data["labels"] | tojson }},
+      returnValues: {{ return_ratio_data["values"] | tojson }},
+      genreLabels: {{ genre_data["labels"] | tojson }},
+      genreValues: {{ genre_data["values"] | tojson }}
     });
+  });
 </script>
+{% endif %}
 {% endblock %}

@@ -1,6 +1,7 @@
 from config import Config
 from app.utils.db import db
 from app.utils.extensions import login_manager, bcrypt
+from app.routes.index import index_bp
 from app.routes.auth import auth_bp
 from app.routes.patron import patron_bp
 from app.models import Patron
@@ -17,6 +18,7 @@ def create_app():
     bcrypt.init_app(app)
 
     # Register blueprints
+    app.register_blueprint(index_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(patron_bp)
 

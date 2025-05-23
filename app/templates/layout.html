@@ -1,41 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Library Dashboard{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>{% block title %}Library Dashboard{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <!-- Bootstrap & Custom Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
+
 <body>
-    <div class="d-flex" id="wrapper">
-        <!-- Sidebar -->
-        <div class="bg-dark text-white sidebar">
-            <h4 class="text-center py-3">Library</h4>
-            <ul class="nav flex-column px-3">
-                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('patron.patron_dashboard') }}">🏠 Dashboard</a></li>
-                {# <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('current_loans') }}">📚 Borrowed Books</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('catalog_search') }}">📖 Library Catalog</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('change_password') }}">🔒 Change Password</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('logout') }}">🚪 Logout</a></li>
-                #}
-            </ul>
+<div class="d-flex">
+  <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar bg-black text-white d-flex flex-column p-3" style="width: 222px;">
+        <!-- Logo -->
+        <div class="logo mb-4 text-center">
+        {% block sidebar_logo %}
+        <h2 class="sidebar-text">My Library</h2>
+        {% endblock %}
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content p-4 w-100">
-            {% block content %}{% endblock %}
+        <!-- Navigation Links -->
+        <div class="flex-grow-1">
+        {% block sidebar_links %}
+        <!-- Will be overridden in child templates -->
+        {% endblock %}
         </div>
+
+        <!-- Logout -->
+        <a class="nav-link sidebar-btn d-flex align-items-center mt-3" href="{{ url_for('auth.unified_login') }}">
+        <img src="{{ url_for('static', filename='icons/logout.svg') }}" class="sidebar-icon me-2">
+        <span class="sidebar-text">Log Out</span>
+        </a>
+    </nav>
+
+  <!-- Main Content Area -->
+    <div class="content-area w-100 d-flex flex-column">
+        <!-- Top Banner -->
+        <div class="dashboard-banner d-flex justify-content-between align-items-center px-4 py-3 bg-white">
+        <div class="d-flex align-items-center">
+            {% if current_user.role == 'ADMIN' %}
+            <img src="{{ url_for('static', filename='icons/admin.svg') }}" width="34" height="34" class="me-3">
+            {% else %}
+            <img src="{{ url_for('static', filename='icons/user.svg') }}" width="34" height="34" class="me-3">
+            {% endif %}
+            <div>
+            <div class="fw-semibold fs-6">{{ current_user.full_name }}</div>
+            <div class="fw-semibold text-muted" style="font-size: 0.85rem;">{{ current_user.role|capitalize }}</div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center text-end">
+            <div class="me-4">
+            <div class="fw-bold" style="font-size: 0.9rem;">{{ current_time }}</div>
+            <div class="text-muted" style="font-size: 0.8rem;">{{ current_date }}</div>
+            </div>
+            <img src="{{ url_for('static', filename='icons/setting.svg') }}" width="34" height="34" alt="Settings">
+        </div>
+        </div>
+
+        <!-- Page Content -->
+        <main class="main-content flex-grow-1 px-4 pt-3" style="background-color: #F2F2F2;">
+        {% block content %}
+        <!-- Will be overridden by child templates -->
+        {% endblock %}
+        </main>
     </div>
+</div>
 
-    <!-- JS Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    {% block scripts %}{% endblock %}
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>
