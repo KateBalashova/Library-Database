@@ -10,10 +10,9 @@
     <span class="sidebar-text">Dashboard</span>
 </a>
 
-<!-- TOCHANGE: endpoint-->
 <!-- My Books -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
-    href="{{ url_for('auth.unified_login') }}">
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.my_books' %}active{% endif %}"
+    href="{{ url_for('patron.my_books') }}">
     <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="Mybook Icon" class="sidebar-icon me-2">
     <span class="sidebar-text">My Books</span>
 </a>
@@ -81,7 +80,7 @@
 </div>
 <!-- Chart Section -->
 <div class="quote-card px-5 py-4 mx-auto my-3">
-  {% if chart_data %}
+{% if chart_data.labels|length > 0 %}
     <div class="chart-section">
         <div class="chart-row">
             <div class="chart-col">
@@ -100,7 +99,7 @@
   {% else %}
     <div class="quote-body">
       <p class="quote-text">"A reader lives a thousand lives before he dies. The man who never reads lives only one."</p>
-      <p class="quote-author">~ George R.R. Martin</p>
+      <p class="quote-author">George R.R. Martin</p>
     </div>
   {% endif %}
 </div>

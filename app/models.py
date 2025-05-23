@@ -47,23 +47,51 @@ class Patron(db.Model):
     registration_date = db.Column(db.Date)
     membership_expiry = db.Column(db.Date)
 
-    # Relationship
-    loans = db.relationship('Loan', backref='patron', lazy=True)
 
 class Loan(db.Model):
     __tablename__ = 'loan'
-    loan_id = db.Column(db.Integer, primary_key=True)
-    book_item_id = db.Column(db.Integer, db.ForeignKey('book_item.book_item_id'), nullable=False)
-    book_item = db.relationship('BookItem', backref='loans')
-    issuing_staff_id = db.Column(db.Integer)
-    returning_staff_id = db.Column(db.Integer)
-    checkout_date = db.Column(db.DateTime)
-    due_date = db.Column(db.Date)
-    return_date = db.Column(db.DateTime)
-    status = db.Column(db.Enum('CURRENT', 'RETURNED', 'OVERDUE', 'LOST', name='loan_status'))
 
-    # Relationship
+    loan_id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign Keys
+    book_item_id = db.Column(db.Integer, db.ForeignKey('book_item.book_item_id'), nullable=False)
+    patron_id = db.Column(db.Integer, db.ForeignKey('patron.patron_id'), nullable=False)
+    issuing_staff_id = db.Column(db.Integer, db.ForeignKey('staff.staff_id'), nullable=False)
+    returning_staff_id = db.Column(db.Integer, db.ForeignKey('staff.staff_id'), nullable=True)
+
+    # Dates
+    checkout_date = db.Column(db.DateTime, nullable=False)
+    due_date = db.Column(db.Date, nullable=False)
+    return_date = db.Column(db.DateTime)
+
+    # Status
+    status = db.Column(
+        db.Enum('CURRENT', 'RETURNED', 'OVERDUE', 'LOST', name='loan_status'),
+        default='CURRENT'
+    )
+
+    # Relationships
+    book_item = db.relationship('BookItem', backref='loans')
+    patron = db.relationship('Patron', backref='loans')
     fines = db.relationship('Fine', backref='loan', lazy=True)
+
+    
+class PatronLoanView(db.Model):
+    __tablename__ = 'vw_patron_loans'
+    __table_args__ = {'extend_existing': True}
+
+    patron_id = db.Column(db.Integer, primary_key=True)
+    patron_name = db.Column(db.String(100), nullable=True)
+    book_title = db.Column(db.String(255), nullable=True)
+    checkout_date = db.Column(db.DateTime, nullable=True)
+    due_date = db.Column(db.Date, nullable=True)
+    return_date = db.Column(db.DateTime, nullable=True)
+    loan_status = db.Column(db.Enum('CURRENT', 'RETURNED', 'OVERDUE', 'LOST'), nullable=True)
+    fine_amount = db.Column(db.Numeric(10, 2), nullable=True)
+    payment_status = db.Column(db.Enum('PENDING', 'PAID', 'WAIVED'), nullable=True)
+
+    
+
 
 class Fine(db.Model):
     __tablename__ = 'fine'

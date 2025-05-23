@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import text, func
 from datetime import datetime
 
-from app.models import Loan, Book, BookGenre, Genre
+from app.models import Book, BookGenre, Genre, PatronLoanView
 from app.utils.decorators import patron_required
 from app.utils.db import db
 
@@ -19,74 +19,68 @@ def patron_dashboard():
     patron_id = int(current_user.id.split('-')[1])
 
 
-    # For Data cards
-    current_query = text("""
-        SELECT COUNT(*) FROM loan 
-        WHERE patron_id = :pid AND status = 'CURRENT'
+    # For Data cards:
+    # Borrowed books
+    loan_stats_query = text("""
+        SELECT 
+            SUM(CASE WHEN loan_status = 'CURRENT' THEN 1 ELSE 0 END) AS current,
+            SUM(CASE WHEN loan_status = 'RETURNED' THEN 1 ELSE 0 END) AS returned,
+            SUM(CASE WHEN loan_status = 'OVERDUE' THEN 1 ELSE 0 END) AS overdue
+        FROM vw_patron_loans
+        WHERE patron_id = :pid
     """)
-
-    returned_query = text("""
-        SELECT COUNT(*) FROM loan
-        WHERE patron_id = :pid AND status = 'RETURNED'
-    """)
-    overdue_query = text("""
-        SELECT COUNT(*) FROM loan
-        WHERE patron_id = :pid AND status = 'OVERDUE'
-    """)
-
-    fine_query = text("""
-        SELECT IFNULL(SUM(f.amount), 0) FROM fine f
-        JOIN loan l ON f.loan_id = l.loan_id
-        WHERE l.patron_id = :pid AND f.payment_status = 'PENDING'
-    """)
-
-    
-    current_count = db.session.execute(current_query, {'pid': patron_id}).scalar()
-    returned_count = db.session.execute(returned_query, {'pid': patron_id}).scalar()
-    overdue_count = db.session.execute(overdue_query, {'pid': patron_id}).scalar()
-    fine_amount = db.session.execute(fine_query, {'pid': current_user.id}).scalar()
+    stats_result = db.session.execute(loan_stats_query, {'pid': patron_id}).fetchone()
+    current_count, returned_count, overdue_count = stats_result or (0, 0, 0)
     borrowed_count = current_count + returned_count + overdue_count
-    # For book returned over borrowed
+    
+    # For Fine Amount
+    fine_query = text("""
+        SELECT SUM(fine_amount)
+        FROM vw_patron_loans
+        WHERE patron_id = :pid AND payment_status = 'PENDING'
+    """)
+    fine_amount = db.session.execute(fine_query, {'pid': patron_id}).scalar() or 0
+
+    # For Pie chart
     return_ratio_data = {
         'labels': ['Returned', 'Current', 'Overdue'],
         'values': [returned_count, current_count, overdue_count]
     }
-        
+    
     # For Book Genres
     genre_query = text("""
-        SELECT g.name, COUNT(*) AS borrow_count
-        FROM loan l
-        JOIN book_item bi ON l.book_item_id = bi.book_item_id
-        JOIN book b ON bi.book_id = b.book_id
-        JOIN book_genre bg ON b.book_id = bg.book_id
-        JOIN genre g ON bg.genre_id = g.genre_id
-        WHERE l.patron_id = :pid
-        GROUP BY g.name
+        SELECT genres
+        FROM vw_patron_loans
+        WHERE patron_id = :pid
     """)
-    genre_result = db.session.execute(genre_query, {'pid': patron_id}).fetchall()
-    genre_labels = [row[0] for row in genre_result]
-    genre_values = [row[1] for row in genre_result]
+    rows = db.session.execute(genre_query, {'pid': patron_id}).fetchall()
+
+    # Parse genre names into a flat list
+    from collections import Counter
+    genre_counter = Counter()
+    for row in rows:
+        if row[0]:
+            genres = [g.strip() for g in row[0].split(',')]
+            genre_counter.update(genres)
+
+    genre_data = {
+        'labels': list(genre_counter.keys()),
+        'values': list(genre_counter.values())
+    }
     
     # For book activities
     time_query = text("""
         SELECT DATE(checkout_date) AS borrow_date, COUNT(*) AS total
-        FROM loan
+        FROM vw_patron_loans
         WHERE patron_id = :pid
         GROUP BY borrow_date
         ORDER BY borrow_date ASC
     """)
     time_result = db.session.execute(time_query, {'pid': patron_id}).fetchall()
-    time_labels = [row[0].strftime("%Y-%m-%d") for row in time_result]
-    time_values = [row[1] for row in time_result]
-    
-    chart_data = {'labels': time_labels, 'values': time_values}
-    genre_data = {'labels': genre_labels, 'values': genre_values}
-    
-    print("DEBUG current_user.id:", current_user.id) 
-    print("DEBUG chart_data:", chart_data)
-    print("DEBUG genre_data:", genre_labels, genre_values)
-    print("DEBUG return_ratio_data:", return_ratio_data)
-    print("DEBUG parsed patron_id:", current_user.id.split('-')[1])
+    chart_data = {
+        'labels': [row[0].strftime("%Y-%m-%d") for row in time_result],
+        'values': [row[1] for row in time_result]
+    }
 
     return render_template('patron/dashboard.html',
                            borrowed_count=borrowed_count,
@@ -98,3 +92,23 @@ def patron_dashboard():
                            chart_data=chart_data,
                            genre_data=genre_data,
                            return_ratio_data=return_ratio_data)
+    
+@patron_bp.route('/mybooks')
+@login_required  
+def my_books():
+    patron_id = int(current_user.id.split('-')[1])
+
+    borrowed_loans = PatronLoanView.query.filter(
+        PatronLoanView.patron_id == patron_id,
+        PatronLoanView.loan_status.in_(['CURRENT', 'OVERDUE'])
+    ).all()
+
+    returned_loans = PatronLoanView.query.filter(
+        PatronLoanView.patron_id == patron_id,
+        PatronLoanView.loan_status == 'RETURNED'
+    ).all()
+
+    return render_template('patron/my_books.html',
+                           borrowed_loans=borrowed_loans,
+                           returned_loans=returned_loans)
+

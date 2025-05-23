@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+{% block title %}My Books{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/my_books.css') }}">
+{% endblock %}
+{% block sidebar_links %}
+<!-- Dashboard -->
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.patron_dashboard' %}active{% endif %}"
+    href="{{ url_for('patron.patron_dashboard') }}">
+    <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" alt="Dashboard Icon" class="sidebar-icon me-2">
+    <span class="sidebar-text">Dashboard</span>
+</a>
+
+<!-- My Books -->
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.my_books' %}active{% endif %}"
+    href="{{ url_for('patron.my_books') }}">
+    <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="My Books Icon" class="sidebar-icon me-2">
+    <span class="sidebar-text">My Books</span>
+</a>
+
+<!-- Library -->
+<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
+    href="{{ url_for('auth.unified_login') }}">
+    <img src="{{ url_for('static', filename='icons/catalog.svg') }}" alt="Catalog Icon" class="sidebar-icon me-2">
+    <span class="sidebar-text">Library</span>
+</a>
+{% endblock %}
+
+
+{% block content %}
+<div class="my-books-container">
+    <!-- Page Header -->
+    <div class="header-bar d-flex justify-content-between align-items-center">
+        <div class="tab-toggle">
+            <button id="borrowed-tab" class="mybook-tab active left-pill" onclick="toggleTab('borrowed')">
+                Borrowed Books
+            </button>
+            <button id="returned-tab" class="mybook-tab right-pill" onclick="toggleTab('returned')">
+                Returned Books
+            </button>
+        </div>
+    </div>
+
+  <!-- Borrowed Books Table -->
+
+  <!-- Table Sections -->
+    <div id="borrowed-section" class="book-section">
+    <p>Total borrowed loans: {{ borrowed_loans|length }}</p>
+    <table class="book-table">
+        <thead>
+        <tr>
+            <th>No</th>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Genre</th>
+            <th>Checkout Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for loan in borrowed_loans %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ loan.book_title }}</td>
+            <td>{{ loan.authors or '—' }}</td>
+            <td>{{ loan.genres or '—' }}</td>
+            <td>{{ loan.checkout_date.strftime('%d-%m-%Y') }}</td>
+            <td>{{ loan.due_date.strftime('%d-%m-%Y') }}</td>
+            <td class="{{ 'overdue' if loan.loan_status == 'OVERDUE' else 'current' }}">{{ loan.loan_status }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+
+  <!-- Returned Books Table -->
+  <div id="returned-section" class="book-section" style="display: none;">
+    <table class="book-table" id="returnedTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author(s)</th>
+          <th>Checkout Date</th>
+          <th>Return Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in returned_loans %}
+        <tr>
+            <td>{{ loan.book_title }}</td>
+            <td>{{ loan.authors }}</td>
+            <td>{{ loan.genres }}</td>
+            <td>{{ loan.checkout_date.strftime('%d-%m-%Y') }}</td>
+            <td>{{ loan.due_date.strftime('%d-%m-%Y') }}</td>
+            <td class="{{ 'overdue' if loan.loan_status == 'OVERDUE' else 'current' }}">{{ loan.loan_status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='js/my_books.js') }}"></script>
+{% endblock %}
