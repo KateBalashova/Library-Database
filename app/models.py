@@ -80,9 +80,12 @@ class PatronLoanView(db.Model):
     __tablename__ = 'vw_patron_loans'
     __table_args__ = {'extend_existing': True}
 
+    loan_id = db.Column(db.Integer, primary_key=True)
     patron_id = db.Column(db.Integer, primary_key=True)
     patron_name = db.Column(db.String(100), nullable=True)
     book_title = db.Column(db.String(255), nullable=True)
+    authors = db.Column(db.String(255), nullable=True)
+    genres = db.Column(db.String(255), nullable=True)
     checkout_date = db.Column(db.DateTime, nullable=True)
     due_date = db.Column(db.Date, nullable=True)
     return_date = db.Column(db.DateTime, nullable=True)
