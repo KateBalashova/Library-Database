@@ -82,21 +82,23 @@
     <table class="book-table" id="returnedTable">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Author(s)</th>
-          <th>Checkout Date</th>
-          <th>Return Date</th>
+            <th>No</th>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Genre</th>
+            <th>Checkout Date</th>
+            <th>Return Date</th>
         </tr>
       </thead>
       <tbody>
         {% for loan in returned_loans %}
         <tr>
+            <td>{{ loop.index }}</td>
             <td>{{ loan.book_title }}</td>
-            <td>{{ loan.authors }}</td>
-            <td>{{ loan.genres }}</td>
+            <td>{{ loan.authors or '—' }}</td>
+            <td>{{ loan.genres or '—' }}</td>
             <td>{{ loan.checkout_date.strftime('%d-%m-%Y') }}</td>
             <td>{{ loan.due_date.strftime('%d-%m-%Y') }}</td>
-            <td class="{{ 'overdue' if loan.loan_status == 'OVERDUE' else 'current' }}">{{ loan.loan_status }}</td>
         </tr>
         {% endfor %}
       </tbody>
