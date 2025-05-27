@@ -33,27 +33,27 @@
 
       <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'admin.patrons' %}active{% endif %}"
          href="{{ url_for('admin.patrons') }}">
-        <img src="{{ url_for('static', filename='icons/user.svg') }}" class="sidebar-icon me-2">
+        <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
         <span class="sidebar-text">Patron Management</span>
       </a>
 
       <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'admin.staff' %}active{% endif %}"
          href="{{ url_for('admin.staff') }}">
-        <img src="{{ url_for('static', filename='icons/setting.svg') }}" class="sidebar-icon me-2">
+        <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
         <span class="sidebar-text">Staff Management</span>
       </a>
 
-      <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'admin.branches' %}active{% endif %}"
+      <!--<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'admin.branches' %}active{% endif %}"
          href="{{ url_for('admin.branches') }}">
-        <img src="{{ url_for('static', filename='icons/catalog.svg') }}" class="sidebar-icon me-2">
+        <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
         <span class="sidebar-text">Branch Management</span>
-      </a>
+      </a> -->
 
-      <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'admin.settings' %}active{% endif %}"
+      <!--<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'admin.settings' %}active{% endif %}"
          href="{{ url_for('admin.settings') }}">
-        <img src="{{ url_for('static', filename='icons/fine.svg') }}" class="sidebar-icon me-2">
+        <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
         <span class="sidebar-text">System Settings</span>
-      </a>
+      </a>-->
       {% endblock %}
     </div>
 

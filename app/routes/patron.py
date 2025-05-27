@@ -18,7 +18,6 @@ patron_bp = Blueprint('patron', __name__)
 def patron_dashboard():
     patron_id = int(current_user.id.split('-')[1])
 
-
     # For Data cards:
     # Borrowed books
     loan_stats_query = text("""
@@ -165,7 +164,7 @@ def reserve_book():
     book_id = request.form.get('book_id')
     patron_id = int(current_user.id.split('-')[1])
 
-    # Optional: Prevent duplicate reservations for same book & patron
+    # Prevent duplicate reservations for same book & patron
     existing = db.session.execute(text("""
         SELECT 1 FROM reservation 
         WHERE patron_id = :patron_id AND book_id = :book_id AND status = 'PENDING'

@@ -83,7 +83,7 @@ def unified_login():
                     return redirect(url_for('auth.unified_login'))
                 login_user(StaffUser(user.staff_id, user.email, user.role))
 
-                # Redirect based on staff role (customize this!)
+                # Redirect based on staff role
                 if user.role == 'ADMIN':
                     return redirect(url_for('admin.admin_dashboard'))
                 else:

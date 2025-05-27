@@ -41,13 +41,13 @@
 
       <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'staff.circulation' %}active{% endif %}"
          href="{{ url_for('staff.circulation') }}">
-        <img src="{{ url_for('static', filename='icons/returned.svg') }}" class="sidebar-icon me-2">
+        <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
         <span class="sidebar-text">Circulation</span>
       </a>
 
       <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if 'patron' in request.endpoint %}active{% endif %}"
-         href="{{ url_for('staff.staff_patrons') }}">
-        <img src="{{ url_for('static', filename='icons/admin.svg') }}" class="sidebar-icon me-2">
+         href="{{ url_for('staff.patron') }}">
+        <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
         <span class="sidebar-text">Patron Management</span>
       </a>
 

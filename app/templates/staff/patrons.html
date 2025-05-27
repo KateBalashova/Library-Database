@@ -1,0 +1,99 @@
+{% extends 'staff/staff_layout.html' %}
+{% block title %}Patron Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Patron Management</h2>
+
+  <!-- Search Bar -->
+  <input type="text" id="patronSearch" class="form-control mb-3" placeholder="Search by name or email">
+
+  <!-- Patron List Table -->
+  <table class="table table-bordered table-hover" id="patronTable">
+    <thead class="table-dark">
+      <tr>
+        <th>Patron ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Membership Expiry</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for patron in patrons %}
+      <tr>
+        <td>{{ patron.patron_id }}</td>
+        <td>{{ patron.first_name }} {{ patron.last_name }}</td>
+        <td>{{ patron.email }}</td>
+        <td>{{ patron.phone }}</td>
+        <td>{{ patron.membership_expiry }}</td>
+        <td>
+          {% if patron.is_active %}
+            <span class="badge bg-success">Active</span>
+          {% else %}
+            <span class="badge bg-secondary">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary view-details-btn" data-id="{{ patron.patron_id }}">
+            View Details
+          </button>
+          <form method="POST" action="{{ url_for('staff.toggle_patron_status') }}" class="d-inline">
+            <input type="hidden" name="patron_id" value="{{ patron.patron_id }}">
+            <button type="submit" class="btn btn-sm btn-warning">
+              {% if patron.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Patron Detail Modal -->
+<div class="modal fade" id="patronDetailModal" tabindex="-1" aria-labelledby="patronDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Patron Loan & Fine Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="patron-detail-body">
+        <p>Loading...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search Filter
+document.getElementById("patronSearch").addEventListener("keyup", function () {
+  const query = this.value.toLowerCase();
+  const rows = document.querySelectorAll("#patronTable tbody tr");
+  rows.forEach(row => {
+    const name = row.cells[1].textContent.toLowerCase();
+    const email = row.cells[2].textContent.toLowerCase();
+    row.style.display = (name.includes(query) || email.includes(query)) ? "" : "none";
+  });
+});
+
+// View Details via Modal
+document.querySelectorAll(".view-details-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    const patronId = this.dataset.id;
+    fetch(`/staff/patron/${patronId}/detail`)
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("patron-detail-body").innerHTML = html;
+        new bootstrap.Modal(document.getElementById("patronDetailModal")).show();
+      });
+  });
+});
+</script>
+{% endblock %}

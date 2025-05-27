@@ -5,8 +5,6 @@ from flask_login import login_required
 from datetime import datetime
 from app.utils.decorators import staff_required
 
-staff_bp = Blueprint('staff', __name__, url_prefix='/staff')
-
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import text
@@ -413,8 +411,48 @@ def return_book():
     flash("Book return processed.", "success")
     return redirect(url_for('staff.circulation', tab='returns'))
 
+# --- Patron Management ---
 @staff_bp.route('/patrons')
 @login_required
 @staff_required
-def staff_patrons():
-    return render_template('staff/patrons.html')
+def patron():
+    patrons = db.session.execute(text("""
+        SELECT patron_id, first_name, last_name, email, phone,
+               membership_expiry, is_active
+        FROM patron
+        ORDER BY last_name, first_name
+    """)).fetchall()
+    return render_template('staff/patrons.html', patrons=patrons)
+
+@staff_bp.route('/toggle-patron-status', methods=['POST'])
+@login_required
+@staff_required
+def toggle_patron_status():
+    patron_id = request.form.get('patron_id')
+    db.session.execute(text("""
+        UPDATE patron
+        SET is_active = NOT is_active
+        WHERE patron_id = :pid
+    """), {'pid': patron_id})
+    db.session.commit()
+    flash("Patron status updated successfully.", "success")
+    return redirect(request.referrer or url_for('staff.patron_management'))
+
+
+@staff_bp.route('/patron/<int:patron_id>/detail')
+@staff_required
+def patron_detail_modal(patron_id):
+    result = db.session.execute(text("""
+        SELECT
+            book_title,
+            checkout_date,
+            due_date,
+            return_date,
+            loan_status,
+            fine_amount,
+            IFNULL(payment_status, 'N/A') AS payment_status
+        FROM vw_patron_loans
+        WHERE patron_id = :pid
+        ORDER BY checkout_date DESC
+    """), {'pid': patron_id}).fetchall()
+    return render_template('staff/_patron_detail_modal.html', records=result)
