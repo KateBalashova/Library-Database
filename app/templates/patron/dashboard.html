@@ -1,0 +1,103 @@
+{% extends 'patron/patron_layout.html' %}
+
+{% block title %}Patron Dashboard{% endblock %}
+
+{% block content %}
+<!-- Summary Cards: Figma style -->
+<div class="d-flex flex-wrap justify-content-center gap-4 mb-5">
+  <!-- Borrowed Books -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+        <img src="{{ url_for('static', filename='icons/borrowed.svg') }}" alt="Borrowed Icon" width="40" height="40">
+        </div>
+        <div class="divider"></div>
+        <div class="ps-4">
+        <div class="data-value">{{ borrowed_count }}</div>
+        <div class="data-label">Borrowed Books</div>
+        </div>
+    </div>
+
+  <!-- Returned Books -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+            <img src="{{ url_for('static', filename='icons/returned.svg') }}" alt="Returned Icon" width="40" height="40">
+        </div>
+            <div class="divider"></div>
+        <div class="ps-4">
+            <div class="data-value">{{ returned_count }}</div>
+            <div class="data-label">Returned Books</div>
+        </div>
+    </div>
+
+  <!-- Overdue Books -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+            <img src="{{ url_for('static', filename='icons/overdue.svg') }}" alt="Overdue Icon" width="40" height="40">
+        </div>
+        <div class="divider"></div>
+        <div class="ps-4">
+            <div class="data-value text-warning">{{ overdue_count }}</div>
+            <div class="data-label">Overdue Books</div>
+        </div>
+    </div>
+
+  <!-- Outstanding Fines -->
+    <div class="data-card d-flex align-items-center p-3 shadow-sm">
+        <div class="icon-box d-flex justify-content-center align-items-center me-4">
+            <img src="{{ url_for('static', filename='icons/fine.svg') }}" alt="Fine Icon" width="40" height="40">
+        </div>
+        <div class="divider"></div>
+        <div class="ps-4">
+            <div class="data-value text-warning">${{ '%.2f' | format(fine_amount) }}</div>
+            <div class="data-label">Outstanding Fines</div>
+        </div>
+    </div>
+
+</div>
+<!-- Chart Section -->
+<div class="quote-card px-5 py-4 mx-auto my-3">
+{% if chart_data.labels|length > 0 %}
+    <div class="chart-section">
+        <div class="chart-row">
+            <div class="chart-col">
+                <canvas id="returnRatioChart"></canvas>
+            </div>
+            <div class="chart-col">
+                <canvas id="genreChart"></canvas>
+            </div>
+        </div>
+
+        <div class="line-chart-container">
+            <canvas id="borrowChart" style="min-height: 300px; max-width: 100%;"></canvas>
+        </div>
+    </div>
+
+  {% else %}
+    <div class="quote-body">
+      <p class="quote-text">"A reader lives a thousand lives before he dies. The man who never reads lives only one."</p>
+      <p class="quote-author">George R.R. Martin</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if chart_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    console.log("📊 Rendering dashboard charts...");
+    loadDashboardCharts({
+      borrowLabels: {{ chart_data["labels"] | tojson }},
+      borrowValues: {{ chart_data["values"] | tojson }},
+      returnLabels: {{ return_ratio_data["labels"] | tojson }},
+      returnValues: {{ return_ratio_data["values"] | tojson }},
+      genreLabels: {{ genre_data["labels"] | tojson }},
+      genreValues: {{ genre_data["values"] | tojson }}
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}

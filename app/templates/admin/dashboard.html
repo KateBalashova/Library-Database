@@ -1,0 +1,101 @@
+{% extends 'admin/admin_layout.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- Summary Cards: Figma style -->
+<div class="d-flex flex-wrap justify-content-center gap-4 mb-5">
+
+  <!-- Total Branches -->
+  <div class="data-card d-flex align-items-center p-3 shadow-sm">
+    <div class="icon-box d-flex justify-content-center align-items-center me-4">
+      <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" alt="Branch Icon" width="40" height="40">
+    </div>
+    <div class="divider"></div>
+    <div class="ps-4">
+      <div class="data-value">{{ total_branches }}</div>
+      <div class="data-label">Total Branches</div>
+    </div>
+  </div>
+
+  <!-- Registered Patrons -->
+  <div class="data-card d-flex align-items-center p-3 shadow-sm">
+    <div class="icon-box d-flex justify-content-center align-items-center me-4">
+      <img src="{{ url_for('static', filename='icons/user.svg') }}" alt="Patron Icon" width="40" height="40">
+    </div>
+    <div class="divider"></div>
+    <div class="ps-4">
+      <div class="data-value">{{ patron_count }}</div>
+      <div class="data-label">Registered Patrons</div>
+    </div>
+  </div>
+
+  <!-- Active Staff -->
+  <div class="data-card d-flex align-items-center p-3 shadow-sm">
+    <div class="icon-box d-flex justify-content-center align-items-center me-4">
+      <img src="{{ url_for('static', filename='icons/admin.svg') }}" alt="Staff Icon" width="40" height="40">
+    </div>
+    <div class="divider"></div>
+    <div class="ps-4">
+      <div class="data-value">{{ staff_count }}</div>
+      <div class="data-label">Active Staff</div>
+    </div>
+  </div>
+
+  <!-- Total Books -->
+  <div class="data-card d-flex align-items-center p-3 shadow-sm">
+    <div class="icon-box d-flex justify-content-center align-items-center me-4">
+      <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="Books Icon" width="40" height="40">
+    </div>
+    <div class="divider"></div>
+    <div class="ps-4">
+      <div class="data-value">{{ total_books }}</div>
+      <div class="data-label">Total Books</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart Section -->
+<div class="quote-card px-5 py-4 mx-auto my-3">
+  {% if chart_data.labels|length > 0 %}
+  <div class="chart-section">
+    <div class="chart-row">
+      <div class="chart-col">
+        <canvas id="branchChart"></canvas>
+      </div>
+      <div class="chart-col">
+        <canvas id="patronGrowthChart"></canvas>
+      </div>
+    </div>
+    <div class="line-chart-container">
+      <canvas id="monthlyLoansChart" style="min-height: 300px; max-width: 100%;"></canvas>
+    </div>
+  </div>
+  {% else %}
+  <div class="quote-body">
+    <p class="quote-text">"The library is an arena of possibility, opening both a window into the soul and a door onto the world."</p>
+    <p class="quote-author">Rita Dove</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if chart_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    console.log("📊 Rendering admin dashboard charts...");
+    loadAdminDashboardCharts({
+      branchLabels: {{ chart_data["labels"] | tojson }},
+      branchData: {{ chart_data["branch_data"] | tojson }},
+      patronGrowthLabels: {{ chart_data["patron_growth_labels"] | tojson }},
+      patronGrowthData: {{ chart_data["patron_growth_values"] | tojson }},
+      loanLabels: {{ chart_data["loan_labels"] | tojson }},
+      loanValues: {{ chart_data["loan_values"] | tojson }}
+    });
+  });
+</script>
+{% endif %}
+{% endblock %}

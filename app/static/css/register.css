@@ -1,0 +1,85 @@
+body {
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f7f7f7;
+}
+
+.register-container {
+    background-color: white;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+}
+
+.register-box {
+    position: relative;
+    width: 100%;
+}
+
+.register-title {
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 42px;
+    margin-bottom: 5px;
+    text-align: center;
+    color: black;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: #727374;
+  margin-top: 10px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background-color: black;
+    border: 2px solid white;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+}
+
+.signin-link {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.signin-link a {
+    color: black;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+
+.flash-message {
+    background-color:blue;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    color: white;
+}

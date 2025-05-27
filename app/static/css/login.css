@@ -1,0 +1,91 @@
+/* auth.css */
+body {
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f7f7f7;
+}
+
+.login-container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 13px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 360px;
+}
+
+.title {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 42px;
+  color: black;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16.8px;
+  color: black;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: #727374;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 13px;
+  box-sizing: border-box;  
+}
+
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background-color: black;
+  border: 2px solid white;
+  color: white;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.signup-link {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  margin-top: 20px;
+
+}
+
+.signup-link a {
+  font-weight: 700;
+  color: white;
+  text-decoration: underline;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.flash-message {
+  color: red;
+  font-size: 13px;
+  margin-bottom: 10px;
+}

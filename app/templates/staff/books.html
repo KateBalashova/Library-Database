@@ -1,0 +1,210 @@
+{% extends 'staff/staff_layout.html' %}
+
+{% block title %}Book Management{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container" class="mt-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Book Management</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookModal" onclick="openAddModal()">Add New Book</button>
+  </div>
+
+  <!-- Search Bar -->
+  <form method="GET" action="{{ url_for('staff.book_management') }}" class="mb-4">
+    <div class="input-group">
+      <input type="text" class="form-control" name="search" placeholder="Search by Title, Author, or Genre" value="{{ request.args.get('search', '') }}">
+      <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </div>
+  </form>
+
+  <!-- Book Table -->
+  <div class="table-responsive">
+    <table class="table table-hover bg-white rounded shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Authors</th>
+          <th>Genres</th>
+          <th>ISBN</th>
+          <th>Year</th>
+          <th>Language</th>
+          <th>Pages</th>
+          <th>Available Copies</th>
+          <th>Total Copies</th> 
+          <th>Branch</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for book in books %}
+        <tr>
+          <td>{{ book.book_id }}</td>
+          <td>{{ book.title }}</td>
+          <td>{{ book.authors }}</td>
+          <td>{{ book.genres }}</td>
+          <td>{{ book.isbn }}</td>
+          <td>{{ book.publication_year }}</td>
+          <td>{{ book.language }}</td>
+          <td>{{ book.num_pages }}</td>
+          <td>{{ book.available_copies }}</td>
+          <td>{{ book.total_copies }}</td>
+          <td>{{ book.branch_name }}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-warning mb-1 w-100" onclick='openEditModal({{ book|tojson|safe }})'>Edit</button>
+            <button class="btn btn-sm btn-danger w-100" onclick="openStatusModal({{ book.book_id }})">Change Status</button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="12" class="text-center">No books found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Book Modal -->
+  <div class="modal fade" id="bookModal" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="bookForm" method="POST" action="{{ url_for('staff.submit_book_form') }}">
+          <div class="modal-header">
+            <h5 class="modal-title" id="bookModalLabel">Add/Edit Book</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="book_id" id="book_id">
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" name="title" id="title" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="isbn" class="form-label">ISBN</label>
+              <input type="text" class="form-control" name="isbn" id="isbn" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="authors" class="form-label">Authors (comma-separated)</label>
+              <input type="text" class="form-control" name="authors" id="authors" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="genres" class="form-label">Genres (comma-separated)</label>
+              <input type="text" class="form-control" name="genres" id="genres" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="publication_year" class="form-label">Publication Year</label>
+              <input type="number" class="form-control" name="publication_year" id="publication_year" min="0" max="2100">
+            </div>
+
+            <div class="mb-3">
+              <label for="language" class="form-label">Language</label>
+              <input type="text" class="form-control" name="language" id="language" value="English">
+            </div>
+
+            <div class="mb-3">
+              <label for="num_pages" class="form-label">Number of Pages</label>
+              <input type="number" class="form-control" name="num_pages" id="num_pages" min="1">
+            </div>
+
+            <div class="mb-3">
+              <label for="copies" class="form-label">Number of Total Copies</label>
+              <input type="number" class="form-control" name="copies" id="copies" min="0" required>
+              <div id="copy-warning" class="text-danger small mt-1" style="display:none;">
+                You cannot reduce the total number of copies here.
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="branch" class="form-label">Branch</label>
+              <select class="form-select" name="branch_id" id="branch_id" disabled>
+                <option value="{{ current_user.branch_id }}" selected>Your Branch</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Save</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Modal: Change Book Item Status -->
+  <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="POST" action="{{ url_for('staff.update_book_item_status') }}">
+          <div class="modal-header">
+            <h5 class="modal-title" id="statusModalLabel">Change Book Item Status</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="book_id" id="modal_book_id">
+            <div class="mb-3">
+              <label for="book_item_id" class="form-label">Select Book Item</label>
+              <select class="form-select" name="book_item_id" id="book_item_id" required></select>
+            </div>
+            <div class="mb-3">
+              <label for="status" class="form-label">New Status</label>
+              <select class="form-select" name="status" required>
+                <option value="AVAILABLE">AVAILABLE</option>
+                <option value="CHECKED_OUT">CHECKED_OUT</option>
+                <option value="RESERVED">RESERVED</option>
+                <option value="LOST">LOST</option>
+                <option value="DAMAGED">DAMAGED</option>
+                <option value="BEING_REPAIRED">BEING_REPAIRED</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Update Status</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/staff.js') }}"></script>
+<script>
+function openStatusModal(bookId) {
+  document.getElementById("modal_book_id").value = bookId;
+  fetch(`/staff/book/${bookId}/items`)
+    .then(res => res.json())
+    .then(data => {
+      const dropdown = document.getElementById("book_item_id");
+      dropdown.innerHTML = "";
+      data.items.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.book_item_id;
+        option.text = `ID: ${item.book_item_id} (${item.status})`;
+        dropdown.appendChild(option);
+      });
+      const modal = new bootstrap.Modal(document.getElementById("statusModal"));
+      modal.show();
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'patron/patron_layout.html' %}
+
+{% block title %}My Books{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/my_books.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="my-books-container">
+    <!-- Page Header -->
+    <div class="header-bar d-flex justify-content-between align-items-center">
+        <div class="tab-toggle">
+            <button id="borrowed-tab" class="mybook-tab active left-pill" onclick="toggleTab('borrowed')">
+                Borrowed Books
+            </button>
+            <button id="returned-tab" class="mybook-tab center-pill" onclick="toggleTab('returned')">
+                Returned Books
+            </button>
+            <button id="reserved-tab" class="mybook-tab right-pill" onclick="toggleTab('reserved')">
+                Reserved Books
+            </button>
+        </div>
+    </div>
+
+  <!-- Borrowed Books Table -->
+
+  <!-- Table Sections -->
+    <div id="borrowed-section" class="book-section">
+    <table class="book-table">
+        <thead>
+        <tr>
+            <th>No</th>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Genre</th>
+            <th>Checkout Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for loan in borrowed_loans %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ loan.book_title }}</td>
+            <td>{{ loan.authors or '—' }}</td>
+            <td>{{ loan.genres or '—' }}</td>
+            <td>{{ loan.checkout_date.strftime('%d-%m-%Y') }}</td>
+            <td>{{ loan.due_date.strftime('%d-%m-%Y') }}</td>
+            <td class="{{ 'overdue' if loan.loan_status == 'OVERDUE' else 'current' }}">{{ loan.loan_status }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+
+  <!-- Returned Books Table -->
+  <div id="returned-section" class="book-section" style="display: none;">
+    <table class="book-table" id="returnedTable">
+      <thead>
+        <tr>
+            <th>No</th>
+            <th>Title</th>
+            <th>Author(s)</th>
+            <th>Genre</th>
+            <th>Checkout Date</th>
+            <th>Return Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in returned_loans %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ loan.book_title }}</td>
+            <td>{{ loan.authors or '—' }}</td>
+            <td>{{ loan.genres or '—' }}</td>
+            <td>{{ loan.checkout_date.strftime('%d-%m-%Y') }}</td>
+            <td>{{ loan.due_date.strftime('%d-%m-%Y') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Reserved Books Table -->
+  <div id="reserved-section" class="book-section mt-5" style="display: none;">
+    <h4 class="mb-3">Reserved Books</h4>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages mb-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <table class="book-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Title</th>
+          <th>Reserved On</th>
+          <th>Expires On</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reservations %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r.title }}</td>
+          <td>{{ r.reservation_date.strftime('%d-%m-%Y') }}</td>
+          <td>{{ r.expiry_date.strftime('%d-%m-%Y') }}</td>
+          <td><span class="badge bg-warning text-dark">{{ r.status }}</span></td>
+          <td>
+            <form method="POST" action="{{ url_for('patron.cancel_reservation') }}" onsubmit="return confirmCancel(this);">
+              <input type="hidden" name="reservation_id" value="{{ r.reservation_id }}">
+              <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-muted text-center">No pending reservations.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages mb-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/my_books.js') }}"></script>
+{% endblock %}

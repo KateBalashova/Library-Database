@@ -1,0 +1,42 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Flask instance folder and compiled DB files (if any)
+instance/
+*.db
+*.sqlite
+
+# Environment variables
+.env
+
+# VSCode / PyCharm settings (optional)
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks (if used in testing)
+*.ipynb_checkpoints
+
+# Log files
+*.log
+
+# Python virtual environments
+.env/         # In case someone uses a folder named '.env' instead of a file
+venv/
+venv*/        
+ENV/
+env/
+*.egg-info/
+
+# MySQL dumps (optional, sensitive data)
+*.sql
+
+# Pipenv / Poetry files (if used)
+Pipfile
+Pipfile.lock
+poetry.lock

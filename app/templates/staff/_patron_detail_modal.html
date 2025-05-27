@@ -1,0 +1,26 @@
+<table class="table table-bordered">
+  <thead class="table-light">
+    <tr>
+      <th>Book Title</th>
+      <th>Checkout Date</th>
+      <th>Due Date</th>
+      <th>Return Date</th>
+      <th>Status</th>
+      <th>Fine Amount</th>
+      <th>Payment Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in records %}
+    <tr>
+      <td>{{ row.book_title }}</td>
+      <td>{{ row.checkout_date.strftime('%Y-%m-%d') }}</td>
+      <td>{{ row.due_date.strftime('%Y-%m-%d') }}</td>
+      <td>{{ row.return_date.strftime('%Y-%m-%d') if row.return_date else '—' }}</td>
+      <td>{{ row.loan_status }}</td>
+      <td>${{ '{:.2f}'.format(row.fine_amount) }}</td>
+      <td>{{ row.payment_status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

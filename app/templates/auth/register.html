@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patron Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-box">
+            <h2 class="register-title">Sign Up</h2>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="flash-message">
+                  {% for message in messages %}
+                    {{ message }}<br>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <label>First Name:</label>
+                <input type="text" name="first_name" required>
+
+                <label>Last Name:</label>
+                <input type="text" name="last_name" required>
+
+                <label>Email:</label>
+                <input type="email" name="email"  required>
+
+                <label>Phone:</label>
+                <input type="text" name="phone"  required>
+
+                <label>Password:</label>
+                <input type="password" name="password"  required>
+
+                <button type="submit" class="register-btn">SIGN UP</button>
+            </form>
+
+            <div class="signin-link">
+                Already have an account? <a href="{{ url_for('auth.unified_login') }}">Sign In</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

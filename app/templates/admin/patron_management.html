@@ -1,0 +1,185 @@
+{% extends 'admin/admin_layout.html' %}
+{% block title %}Patron Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Patron Management</h2>
+
+  <!-- Search and Create -->
+  <div class="d-flex justify-content-between mb-3">
+    <input type="text" id="patronSearch" class="form-control w-50" placeholder="Search by name or email">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPatronModal">➕ Add Patron</button>
+  </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Patron Table -->
+  <table class="table table-bordered table-hover" id="patronTable">
+    <thead class="table-dark">
+      <tr>
+        <th>Patron ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Membership Expiry</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for patron in patrons %}
+      <tr>
+        <td>{{ patron.patron_id }}</td>
+        <td>{{ patron.first_name }} {{ patron.last_name }}</td>
+        <td>{{ patron.email }}</td>
+        <td>{{ patron.phone }}</td>
+        <td>{{ patron.membership_expiry }}</td>
+        <td>
+          {% if patron.is_active %}
+            <span class="badge bg-success">Active</span>
+          {% else %}
+            <span class="badge bg-secondary">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <button class="btn btn-sm btn-info" onclick='openEditModal({{ patron|tojson|safe }})'>Edit</button>
+          <form method="POST" action="{{ url_for('admin.toggle_patron_status') }}" class="d-inline">
+            <input type="hidden" name="patron_id" value="{{ patron.patron_id }}">
+            <button type="submit" class="btn btn-sm btn-warning">
+              {% if patron.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.reset_patron_password') }}" class="d-inline">
+            <input type="hidden" name="patron_id" value="{{ patron.patron_id }}">
+            <button type="submit" class="btn btn-sm btn-secondary">Reset PW</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Add/Edit Patron Modal -->
+<!-- Add Patron Modal -->
+<div class="modal fade" id="addPatronModal" tabindex="-1" role="dialog" aria-labelledby="addPatronModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="post" action="{{ url_for('admin.create_patron') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addPatronModalLabel">Add New Patron</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span>&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Registration Date</label>
+            <input type="date" name="registration_date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Expiry Date</label>
+            <input type="date" name="membership_expiry" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Max Books Allowed</label>
+            <input type="number" name="max_books_allowed" class="form-control" min="1" value="5" required>
+          </div>
+          <div class="alert alert-info">
+            Default password <strong>patron@123</strong> will be assigned.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Create Patron</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Patron Modal -->
+<div class="modal fade" id="editPatronModal" tabindex="-1" role="dialog" aria-labelledby="editPatronModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="post" action="{{ url_for('admin.update_patron') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Patron</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span>&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="patron_id" id="edit_patron_id">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" id="edit_first_name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" id="edit_last_name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" id="edit_email" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" name="phone" id="edit_phone" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Registration Date</label>
+            <input type="date" name="registration_date" id="edit_registration_date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Expiry Date</label>
+            <input type="date" name="membership_expiry" id="edit_membership_expiry" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Max Books Allowed</label>
+            <input type="number" name="max_books_allowed" id="edit_max_books_allowed" class="form-control" min="1" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>        
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
