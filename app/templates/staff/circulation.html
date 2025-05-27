@@ -1,0 +1,123 @@
+{% extends 'staff/staff_layout.html' %}
+{% block title %}Circulation Management{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/my_books.css') }}">
+{% endblock %}
+{% block content %}
+<h2 class="mb-4">Circulation</h2>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+
+<!-- Toggle Buttons -->
+<ul class="nav nav-tabs" id="circulationTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+      Pending Reservations
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="returns-tab" data-bs-toggle="tab" data-bs-target="#returns" type="button" role="tab">
+      Book Returns
+    </button>
+  </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content mt-3">
+  <!-- Pending Reservations Tab -->
+  <div class="tab-pane fade show active" id="pending" role="tabpanel">
+    <table class="table table-hover table-bordered bg-white">
+      <thead class="table-dark">
+        <tr>
+          <th>Reservation ID</th>
+          <th>Book Title</th>
+          <th>Patron Name</th>
+          <th>Reservation Date</th>
+          <th>Expiry Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reservations %}
+        <tr>
+          <td>{{ r.reservation_id }}</td>
+          <td>{{ r.title }}</td>
+          <td>{{ r.patron_name }}</td>
+          <td>{{ r.reservation_date }}</td>
+          <td>{{ r.expiry_date }}</td>
+          <td>{{ r.status }}</td>
+          <td class="text-center">
+            <form method="post" action="{{ url_for('staff.approve_reservation') }}" onsubmit="return confirmApprove();">
+              <input type="hidden" name="reservation_id" value="{{ r.reservation_id }}">
+              <button class="btn btn-success btn-sm">Approve</button>
+            </form>
+            
+            <form method="post" action="{{ url_for('staff.decline_reservation') }}" onsubmit="return confirmDecline();">
+              <input type="hidden" name="reservation_id" value="{{ r.reservation_id }}">
+              <button class="btn btn-danger btn-sm">Decline</button>
+            </form>
+            
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Book Returns Tab -->
+  <div class="tab-pane fade" id="returns" role="tabpanel">
+    <table class="table table-hover table-bordered bg-white">
+      <thead class="table-dark">
+        <tr>
+          <th>Loan ID</th>
+          <th>Book Title</th>
+          <th>Patron Name</th>
+          <th>Checkout Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans %}
+        <tr>
+          <td>{{ loan.loan_id }}</td>
+          <td>{{ loan.book_title }}</td>
+          <td>{{ loan.patron_name }}</td>
+          <td>{{ loan.checkout_date }}</td>
+          <td>{{ loan.due_date }}</td>
+          <td>{{ loan.status }}</td>
+          <td class="text-center">
+            <form method="post" action="{{ url_for('staff.return_book') }}" onsubmit="return confirmReturn();">
+              <input type="hidden" name="loan_id" value="{{ loan.loan_id }}">
+              <button class="btn btn-primary btn-sm">Return Book</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/staff.js') }}"></script>
+{% endblock %}
+
+
+

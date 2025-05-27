@@ -1,19 +1,6 @@
 Chart.register(ChartDataLabels); // register the plugin
 Chart.defaults.font.family = 'Montserrat'; // set once
 
-
-// For collapsing the sidebar
-document.addEventListener("DOMContentLoaded", function () {
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggleSidebar');
-
-  if (sidebar && toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
-});
-
 // For visualizing the dashboard charts
 function loadDashboardCharts(data) {
     // Return Ratio Pie Chart
@@ -263,3 +250,15 @@ function loadDashboardCharts(data) {
     });
 }
 }
+
+// For collapsing the sidebar
+document.addEventListener("DOMContentLoaded", function () {
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggleSidebar');
+
+  if (sidebar && toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+  }
+});

@@ -5,6 +5,7 @@ from app.routes.index import index_bp
 from app.routes.auth import auth_bp
 from app.routes.patron import patron_bp
 from app.routes.staff import staff_bp
+from app.routes.admin import admin_bp
 from app.models import Patron
 from flask import Flask
 
@@ -23,5 +24,6 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(patron_bp)
     app.register_blueprint(staff_bp)
+    app.register_blueprint(admin_bp)
 
     return app

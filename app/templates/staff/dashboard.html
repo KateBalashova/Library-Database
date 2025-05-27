@@ -1,0 +1,56 @@
+{% extends "staff/staff_layout.html" %}
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Branch Overview</h2>
+
+<div class="d-flex flex-wrap justify-content-center gap-4 mb-5">
+  {% for card in [
+    {'label': 'Total Books', 'value': total_books, 'icon': 'books.svg'},
+    {'label': 'Borrowed Books', 'value': borrowed_books, 'icon': 'borrowed.svg'},
+    {'label': 'Available Books', 'value': available_books, 'icon': 'catalog.svg'},
+    {'label': 'Overdue Books', 'value': overdue_books, 'icon': 'overdue.svg'}
+  ] %}
+  <div class="data-card d-flex align-items-center p-3 shadow-sm">
+    <div class="icon-box d-flex justify-content-center align-items-center me-4">
+      <img src="{{ url_for('static', filename='icons/' ~ card.icon) }}" width="40" height="40">
+    </div>
+    <div class="divider"></div>
+    <div class="ps-4">
+      <div class="data-value">{{ card.value }}</div>
+      <div class="data-label">{{ card.label }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="quote-card px-5 py-4 mx-auto my-3">
+  <div class="chart-section">
+    <div class="chart-row">
+      <div class="chart-col"><canvas id="genreDistChart"></canvas></div>
+      <div class="chart-col"><canvas id="statusPieChart"></canvas></div>
+    </div>
+    <div class="line-chart-container mt-4">
+      <canvas id="loanChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    loadStaffDashboard({
+      loanLabels: {{ loan_chart["labels"] | tojson }},
+      loanValues: {{ loan_chart["values"] | tojson }},
+      genreLabels: {{ genre_data["labels"] | tojson }},
+      genreValues: {{ genre_data["values"] | tojson }},
+      statusLabels: {{ status_data["labels"] | tojson }},
+      statusValues: {{ status_data["values"] | tojson }}
+    });
+  });
+</script>
+<script src="{{ url_for('static', filename='js/staff.js') }}"></script>
+{% endblock %}

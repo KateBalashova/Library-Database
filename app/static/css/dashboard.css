@@ -220,7 +220,7 @@ canvas {
   padding: 0 1rem;
 }
 
-#lineChart, #borrowChart {
-  height: 400px !important; /* or 450px */
+#lineChart, #borrowChart, #loanChart {
+  height: 350px !important; /* or 450px */
   width: 100% !important;
 }

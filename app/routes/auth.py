@@ -44,8 +44,6 @@ def unified_register():
 # ------------------------------------------
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def unified_login():
-
-    
     if request.method == 'POST':
         role = request.form.get('role')
         email = request.form['email']

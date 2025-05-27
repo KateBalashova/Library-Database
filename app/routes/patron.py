@@ -99,7 +99,7 @@ def patron_dashboard():
 def my_books():
     patron_id = int(current_user.id.split('-')[1])
     with db.engine.connect() as conn:
-        result = conn.execute(text("SELECT COUNT(*) FROM vw_patron_loans WHERE patron_id = 1 AND loan_status IN ('CURRENT', 'OVERDUE')"))        
+        result = conn.execute(text("SELECT COUNT(*) FROM vw_patron_loans WHERE patron_id = :pid AND loan_status IN ('CURRENT', 'OVERDUE')"), {'pid': patron_id})        
     borrowed_loans = PatronLoanView.query.filter(
         PatronLoanView.patron_id == patron_id,
         PatronLoanView.loan_status.in_(['CURRENT', 'OVERDUE'])

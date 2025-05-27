@@ -1,0 +1,50 @@
+{% extends 'admin/admin_layout.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Welcome, {{ current_user.full_name }}</h3>
+
+<div class="row g-4">
+  <!-- Card: Total Patrons -->
+  <div class="col-md-3">
+    <div class="card text-white bg-primary shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Patrons</h5>
+        <p class="card-text fs-4">{{ patron_count or 0 }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Total Staff -->
+  <div class="col-md-3">
+    <div class="card text-white bg-success shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Staff</h5>
+        <p class="card-text fs-4">{{ staff_count or 0 }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Total Branches -->
+  <div class="col-md-3">
+    <div class="card text-white bg-warning shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Branches</h5>
+        <p class="card-text fs-4">{{ branch_count or 0 }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card: Total Books -->
+  <div class="col-md-3">
+    <div class="card text-white bg-info shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total Books</h5>
+        <p class="card-text fs-4">{{ book_count or 0 }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="mt-4 text-muted">You can manage patrons, staff, and settings using the navigation bar on the left.</p>
+{% endblock %}

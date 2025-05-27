@@ -1,0 +1,116 @@
+{% extends 'admin/admin_layout.html' %}
+{% block title %}Staff Management{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Staff Management</h3>
+
+<!-- Add Staff Button -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+    + Add Staff
+  </button>
+</div>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<!-- Staff Table -->
+<table class="table table-hover bg-white rounded shadow-sm">
+  <thead class="table-dark">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Branch</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for staff in staff_list %}
+    <tr>
+      <td>{{ staff.first_name }} {{ staff.last_name }}</td>
+      <td>{{ staff.email }}</td>
+      <td>{{ staff.branch_name }}</td>
+      <td>{{ staff.role }}</td>
+      <td>
+        {% if staff.is_active %}
+          <span class="badge bg-success">Active</span>
+        {% else %}
+          <span class="badge bg-secondary">Inactive</span>
+        {% endif %}
+      </td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary">Edit</button>
+        {% if staff.is_active %}
+          <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+        {% else %}
+          <button class="btn btn-sm btn-outline-success">Reactivate</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Add Staff Modal -->
+<div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('admin.create_staff') }}" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addStaffLabel">Add New Staff</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label>First Name</label>
+          <input type="text" class="form-control" name="first_name" required>
+        </div>
+        <div class="mb-3">
+          <label>Last Name</label>
+          <input type="text" class="form-control" name="last_name" required>
+        </div>
+        <div class="mb-3">
+          <label>Email</label>
+          <input type="email" class="form-control" name="email" required>
+        </div>
+        <div class="mb-3">
+          <label>Phone</label>
+          <input type="text" class="form-control" name="phone" required>
+        </div>
+        <div class="mb-3">
+          <label>Branch</label>
+          <select class="form-select" name="branch_id" required>
+            {% for branch in branches %}
+              <option value="{{ branch.branch_id }}">{{ branch.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label>Role</label>
+          <select class="form-select" name="role" required>
+            <option value="LIBRARIAN">Librarian</option>
+            <option value="MANAGER">Manager</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label>Initial Password</label>
+          <input type="password" class="form-control" name="password" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Create Staff</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
