@@ -1,0 +1,60 @@
+{% extends 'layout.html' %}
+{% block title %}Library Catalog{% endblock %}
+
+{% block content %}
+<div class="main-content p-4">
+  <h2 class="mt-4 mb-4">Explore Our Collection</h2>
+
+  <!-- Search Form -->
+  <form method="GET" action="{{ url_for('patron.catalog') }}" class="mb-4 d-flex">
+      <input type="text" name="q" placeholder="Search by title, author, or genre..." class="form-control me-2" value="{{ request.args.get('q', '') }}">
+      <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Book Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Book Title</th>
+                <th>Author(s)</th>
+                <th>Genre(s)</th>
+                <th>Branch</th>
+                <th>Reserve</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+          <tr>
+              <td>{{ book.book_id }}</td>
+              <td>{{ book.title }}</td>
+              <td>{{ book.authors }}</td>
+              <td>{{ book.genres }}</td>
+              <td>{{ book.branch_name }}</td>
+              <td>
+                  <form method="POST" action="{{ url_for('patron.reserve_book') }}">
+                      <input type="hidden" name="book_id" value="{{ book.book_id }}">
+                      <input type="hidden" name="branch_name" value="{{ book.branch_name }}">
+                      <button type="submit" class="btn btn-success btn-sm">Reserve</button>
+                  </form>
+              </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+</div>
+{% endblock %}

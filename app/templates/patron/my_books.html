@@ -6,29 +6,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/my_books.css') }}">
 {% endblock %}
-{% block sidebar_links %}
-<!-- Dashboard -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.patron_dashboard' %}active{% endif %}"
-    href="{{ url_for('patron.patron_dashboard') }}">
-    <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" alt="Dashboard Icon" class="sidebar-icon me-2">
-    <span class="sidebar-text">Dashboard</span>
-</a>
-
-<!-- My Books -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.my_books' %}active{% endif %}"
-    href="{{ url_for('patron.my_books') }}">
-    <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="My Books Icon" class="sidebar-icon me-2">
-    <span class="sidebar-text">My Books</span>
-</a>
-
-<!-- Library -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
-    href="{{ url_for('auth.unified_login') }}">
-    <img src="{{ url_for('static', filename='icons/catalog.svg') }}" alt="Catalog Icon" class="sidebar-icon me-2">
-    <span class="sidebar-text">Library</span>
-</a>
-{% endblock %}
-
 
 {% block content %}
 <div class="my-books-container">

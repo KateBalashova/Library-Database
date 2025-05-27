@@ -18,9 +18,9 @@ def role_required(roles):
 def patron_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(current_user, 'user_type') or current_user.user_type != 'patron':
-            flash("Only patrons allowed.")
-            return redirect(url_for('auth.unified_login'))
+        if current_user.role != 'PATRON':
+            flash("Access restricted to patrons only.", "danger")
+            return redirect(url_for('auth.unified_login'))  # Or wherever unauthorized should go
         return f(*args, **kwargs)
     return wrapper
 

@@ -2,30 +2,6 @@
 
 {% block title %}Patron Dashboard{% endblock %}
 
-{% block sidebar_links %}
-<!-- Dashboard -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.patron_dashboard' %}active{% endif %}"
-    href="{{ url_for('patron.patron_dashboard') }}">
-    <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" alt="Dashboard Icon" class="sidebar-icon me-2">
-    <span class="sidebar-text">Dashboard</span>
-</a>
-
-<!-- My Books -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.my_books' %}active{% endif %}"
-    href="{{ url_for('patron.my_books') }}">
-    <img src="{{ url_for('static', filename='icons/books.svg') }}" alt="Mybook Icon" class="sidebar-icon me-2">
-    <span class="sidebar-text">My Books</span>
-</a>
-
-<!-- TOCHANGE: endpoint-->
-<!-- Library -->
-<a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'auth.unified_login' %}active{% endif %}"
-    href="{{ url_for('auth.unified_login') }}">
-    <img src="{{ url_for('static', filename='icons/catalog.svg') }}" alt="Catalog Icon" class="sidebar-icon me-2">
-    <span class="sidebar-text">Library</span>
-</a>
-{% endblock %}
-
 {% block content %}
 <!-- Summary Cards: Figma style -->
 <div class="d-flex flex-wrap justify-content-center gap-4 mb-5">

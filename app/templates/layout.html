@@ -30,10 +30,27 @@
         <!-- Navigation Links -->
         <div class="flex-grow-1">
         {% block sidebar_links %}
-        <!-- Will be overridden in child templates -->
+        <!-- Default sidebar links (visible if not overridden by child) -->
+
+        <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.patron_dashboard' %}active{% endif %}"
+          href="{{ url_for('patron.patron_dashboard') }}">
+          <img src="{{ url_for('static', filename='icons/dashboard.svg') }}" class="sidebar-icon me-2">
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+
+        <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.my_books' %}active{% endif %}"
+          href="{{ url_for('patron.my_books') }}">
+          <img src="{{ url_for('static', filename='icons/books.svg') }}" class="sidebar-icon me-2">
+          <span class="sidebar-text">My Books</span>
+        </a>
+
+        <a class="nav-link sidebar-btn d-flex align-items-center mb-3 {% if request.endpoint == 'patron.catalog' %}active{% endif %}"
+          href="{{ url_for('patron.catalog') }}">
+          <img src="{{ url_for('static', filename='icons/catalog.svg') }}" class="sidebar-icon me-2">
+          <span class="sidebar-text">Library</span>
+        </a>
         {% endblock %}
         </div>
-
         <!-- Logout -->
         <a class="nav-link sidebar-btn d-flex align-items-center mt-3" href="{{ url_for('auth.unified_login') }}">
         <img src="{{ url_for('static', filename='icons/logout.svg') }}" class="sidebar-icon me-2">

@@ -1,6 +1,6 @@
 # Routes for patron homepage after login
 
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from sqlalchemy import text, func
 from datetime import datetime
@@ -95,21 +95,15 @@ def patron_dashboard():
     
 @patron_bp.route('/mybooks')
 @login_required  
+@patron_required
 def my_books():
     patron_id = int(current_user.id.split('-')[1])
     with db.engine.connect() as conn:
-        result = conn.execute(text("SELECT COUNT(*) FROM vw_patron_loans WHERE patron_id = 1 AND loan_status IN ('CURRENT', 'OVERDUE')"))
-        print("SQL raw count:", result.scalar())
-        
+        result = conn.execute(text("SELECT COUNT(*) FROM vw_patron_loans WHERE patron_id = 1 AND loan_status IN ('CURRENT', 'OVERDUE')"))        
     borrowed_loans = PatronLoanView.query.filter(
         PatronLoanView.patron_id == patron_id,
         PatronLoanView.loan_status.in_(['CURRENT', 'OVERDUE'])
     ).all()
-    
-    print("DEBUG Borrowed loans count:", len(borrowed_loans))
-    for loan in borrowed_loans:
-        print(vars(loan))
-
 
     returned_loans = PatronLoanView.query.filter(
         PatronLoanView.patron_id == patron_id,
@@ -119,4 +113,68 @@ def my_books():
     return render_template('patron/my_books.html',
                            borrowed_loans=borrowed_loans,
                            returned_loans=returned_loans)
+    
 
+
+@patron_bp.route('/patron/catalog', methods=['GET'])
+@login_required
+@patron_required
+def catalog():
+    print("[DEBUG] Accessing catalog page")
+    print(f"User authenticated: {current_user.is_authenticated}, role: {getattr(current_user, 'role', None)}")
+    search_query = request.args.get('q', '').strip()
+
+    sql = """
+        SELECT 
+            book_id,
+            title,
+            authors,
+            genres,
+            branch_name
+        FROM vw_available_books
+    """
+
+    params = {}
+    if search_query:
+        sql += """
+            WHERE 
+                title LIKE :query OR
+                authors LIKE :query OR
+                genres LIKE :query
+        """
+        params['query'] = f"%{search_query}%"
+
+    sql += " ORDER BY title"
+
+    result = db.session.execute(text(sql), params)
+    books = result.fetchall()
+
+    return render_template('patron/catalog.html', books=books)
+
+
+@patron_bp.route('/patron/reserve', methods=['POST'])
+@login_required
+@patron_required
+def reserve_book():
+    book_id = request.form.get('book_id')
+    patron_id = current_user.id
+
+    if not book_id:
+        flash("Invalid reservation request.", "danger")
+        return redirect(url_for('patron.catalog'))
+
+    try:
+        db.session.execute(text("""
+            INSERT INTO reservation (book_id, patron_id, reservation_date, expiry_date, status)
+            VALUES (:book_id, :patron_id, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY), 'PENDING')
+        """), {
+            'book_id': book_id,
+            'patron_id': patron_id
+        })
+        db.session.commit()
+        flash("Book reserved successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Failed to reserve the book. Please try again.", "danger")
+
+    return redirect(url_for('patron.catalog'))
