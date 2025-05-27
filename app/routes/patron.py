@@ -109,19 +109,25 @@ def my_books():
         PatronLoanView.patron_id == patron_id,
         PatronLoanView.loan_status == 'RETURNED'
     ).all()
+    
+    reservations = db.session.execute(text("""
+        SELECT r.reservation_id, b.title, r.reservation_date, r.expiry_date, r.status
+        FROM reservation r
+        JOIN book b ON r.book_id = b.book_id
+        WHERE r.patron_id = :pid AND r.status = 'PENDING'
+        ORDER BY r.reservation_date DESC
+    """), {'pid': patron_id}).fetchall()   
 
     return render_template('patron/my_books.html',
                            borrowed_loans=borrowed_loans,
-                           returned_loans=returned_loans)
-    
+                           returned_loans=returned_loans,
+                           reservations=reservations)
 
 
 @patron_bp.route('/patron/catalog', methods=['GET'])
 @login_required
 @patron_required
 def catalog():
-    print("[DEBUG] Accessing catalog page")
-    print(f"User authenticated: {current_user.is_authenticated}, role: {getattr(current_user, 'role', None)}")
     search_query = request.args.get('q', '').strip()
 
     sql = """
@@ -144,7 +150,7 @@ def catalog():
         """
         params['query'] = f"%{search_query}%"
 
-    sql += " ORDER BY title"
+    sql += " ORDER BY book_id ASC"
 
     result = db.session.execute(text(sql), params)
     books = result.fetchall()
@@ -157,24 +163,57 @@ def catalog():
 @patron_required
 def reserve_book():
     book_id = request.form.get('book_id')
-    patron_id = current_user.id
+    patron_id = int(current_user.id.split('-')[1])
 
-    if not book_id:
-        flash("Invalid reservation request.", "danger")
+    # Optional: Prevent duplicate reservations for same book & patron
+    existing = db.session.execute(text("""
+        SELECT 1 FROM reservation 
+        WHERE patron_id = :patron_id AND book_id = :book_id AND status = 'PENDING'
+    """), {'patron_id': patron_id, 'book_id': book_id}).fetchone()
+
+    if existing:
+        flash("You already have a pending reservation for this book.", "warning")
         return redirect(url_for('patron.catalog'))
 
     try:
         db.session.execute(text("""
             INSERT INTO reservation (book_id, patron_id, reservation_date, expiry_date, status)
             VALUES (:book_id, :patron_id, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY), 'PENDING')
-        """), {
-            'book_id': book_id,
-            'patron_id': patron_id
-        })
+        """), {'book_id': book_id, 'patron_id': patron_id})
         db.session.commit()
-        flash("Book reserved successfully!", "success")
+        flash("Your reservation was successfully submitted.", "success")
     except Exception as e:
         db.session.rollback()
-        flash("Failed to reserve the book. Please try again.", "danger")
+        print("[ERROR] Reservation failed:", e)  # Add this line
+        flash("Reservation failed. Please try again.", "danger")
+
 
     return redirect(url_for('patron.catalog'))
+
+@patron_bp.route('/patron/cancel-reservation', methods=['POST'])
+@login_required
+@patron_required
+def cancel_reservation():
+    reservation_id = request.form.get('reservation_id')
+    patron_id = int(current_user.id.split('-')[1])  
+    try:
+        result = db.session.execute(text("""
+            UPDATE reservation
+            SET status = 'CANCELLED'
+            WHERE reservation_id = :id AND patron_id = :pid AND status = 'PENDING'
+        """), {'id': reservation_id, 'pid': patron_id})
+        db.session.commit()
+
+        if result.rowcount == 0:
+            flash("Reservation not found or already cancelled.", "warning")
+        else:
+            flash("Reservation cancelled successfully.", "success")
+
+    except Exception as e:
+        db.session.rollback()
+        print("[ERROR] Cancel failed:", e)
+        flash("Failed to cancel reservation.", "danger")
+
+    return redirect(url_for('patron.my_books', tab='reserved'))
+
+

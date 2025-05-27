@@ -1,12 +1,27 @@
 function toggleTab(tabName) {
-  const borrowedTab = document.getElementById('borrowed-tab');
-  const returnedTab = document.getElementById('returned-tab');
+  const tabs = ['borrowed', 'returned', 'reserved'];
 
-  // Toggle class
-  borrowedTab.classList.toggle('active', tabName === 'borrowed');
-  returnedTab.classList.toggle('active', tabName === 'returned');
+  tabs.forEach(name => {
+    // Toggle tab button active class
+    const tab = document.getElementById(name + '-tab');
+    if (tab) {
+      tab.classList.toggle('active', name === tabName);
+    }
 
-  // Show/hide sections
-  document.getElementById('borrowed-section').style.display = (tabName === 'borrowed') ? 'block' : 'none';
-  document.getElementById('returned-section').style.display = (tabName === 'returned') ? 'block' : 'none';
+    // Toggle section visibility
+    const section = document.getElementById(name + '-section');
+    if (section) {
+      section.style.display = (name === tabName) ? 'block' : 'none';
+    }
+  });
 }
+
+function confirmCancel(form) {
+  const title = form.closest('tr').querySelector('td:nth-child(2)').innerText;
+  return confirm(`Are you sure you want to cancel the reservation for "${title}"?`);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const tab = new URLSearchParams(window.location.search).get("tab") || "borrowed";
+  toggleTab(tab);
+});
